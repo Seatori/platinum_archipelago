@@ -2656,7 +2656,7 @@ header = "canalave_library_3f"
 [route_205_south]
 exits = [
     "fuego_ironworks_outside",
-    "floaroma_town",
+    "route_205_south_bottom",
     "eterna_forest_outside",
     "route_205_house",
     "eterna_forest",
@@ -2681,10 +2681,21 @@ trainers = [
 ]
 honey_tree_idx = 0
 
+[route_205_south_bottom]
+exits = [
+    "floaroma_town",
+    "route_205_south",
+    "valley_windworks_outside",
+]
+header = "route_205_south"
+accessible_encounters = [
+    "water",
+]
+
 [valley_windworks_outside]
 exits = [
     "valley_windworks_building",
-    "floaroma_town",
+    "route_205_south_bottom",
 ]
 header = "valley_windworks_outside"
 locs = [
@@ -3055,12 +3066,11 @@ exits = [
     "floaroma_town_southeast_house",
     "floaroma_town_mart",
     "route_204_north",
-    "route_205_south",
+    "route_205_south_bottom",
     "floaroma_town_pokecenter_1f",
     "floaroma_meadow_south",
     "floaroma_town_middle_house",
     "flower_shop",
-    "valley_windworks_outside",
 ]
 header = "floaroma_town"
 
