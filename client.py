@@ -92,14 +92,14 @@ AP_VERSION_DATA: Mapping[int, VersionData] = {
         flags_offset_in_vars_flags=0x240,
         ap_save_offset=0xCF60,
         recv_item_count_offset_in_ap_save=0,
-        once_loc_flags_offset_in_ap_save=8,
+        once_loc_flags_offset_in_ap_save=4,
         once_loc_flags_count=16,
         deathlink_tx_offset=21,
-        num_blacked_out_offset_in_ap_save=12,
+        num_blacked_out_offset_in_ap_save=8,
         cheat_offset=24,
         pokedex_offset_in_save=0x1370,
         pokedex_size=804,
-        trainersanity_flags_offset_in_ap_save=16,
+        trainersanity_flags_offset_in_ap_save=12,
         trainersanity_flags_count=927,
         player_pos_offset=28,
         recv_state_offset=20,
@@ -439,7 +439,12 @@ class PokemonPlatinumClient(BizHawkClient):
                     remote_item_queue.get_writes(
                         self.ap_struct_address + version_data.remote_item_queue_offset,
                         [v.item for v in ctx.items_received[start_idx:start_idx + remote_item_queue.remaining_capacity()]]),
-                    [guards["AP STRUCT VALID"]]
+                    [
+                        guards["AP STRUCT VALID"],
+                        (savedata_ptr + version_data.ap_save_offset + version_data.recv_item_count_offset_in_ap_save, read_result[0], "ARM9 System Bus"),
+                        (self.ap_struct_address + version_data.recv_state_offset, b'\0', "ARM9 System Bus"),
+                        (self.ap_struct_address + version_data.remote_item_queue_offset, read_result[2], "ARM9 System Bus"),
+                    ]
                 ):
                     return
 
