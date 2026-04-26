@@ -205,7 +205,6 @@ class RemoteItemQueue:
         else:
             return self.size + self.front - self.back
 
-
     def remaining_capacity(self) -> int:
         return self.size - self.amount_in_queue() - 1
 
@@ -430,8 +429,11 @@ class PokemonPlatinumClient(BizHawkClient):
             recv_item_count = int.from_bytes(read_result[0], byteorder='little')
             recv_state = read_result[1][0]
             remote_item_queue = RemoteItemQueue.from_bytes(version_data.remote_item_queue_size, read_result[2])
-            if recv_state == 1 and recv_item_count + remote_item_queue.amount_in_queue() < len(ctx.items_received) and remote_item_queue.remaining_capacity() > 0:
-                start_idx = recv_item_count + remote_item_queue.amount_in_queue()
+            amount_in_queue = remote_item_queue.amount_in_queue()
+            if recv_state == 1 \
+                and recv_item_count + amount_in_queue < len(ctx.items_received) \
+                and remote_item_queue.remaining_capacity() > 0:
+                start_idx = recv_item_count + amount_in_queue
                 if not await bizhawk.guarded_write(
                     ctx.bizhawk_ctx,
                     remote_item_queue.get_writes(
