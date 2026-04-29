@@ -434,19 +434,19 @@ class PokemonPlatinumClient(BizHawkClient):
                 and recv_item_count + amount_in_queue < len(ctx.items_received) \
                 and remote_item_queue.remaining_capacity() > 0:
                 start_idx = recv_item_count + amount_in_queue
-                if not await bizhawk.guarded_write(
+                await bizhawk.guarded_write(
                     ctx.bizhawk_ctx,
                     remote_item_queue.get_writes(
                         self.ap_struct_address + version_data.remote_item_queue_offset,
                         [v.item for v in ctx.items_received[start_idx:start_idx + remote_item_queue.remaining_capacity()]]),
                     [
                         guards["AP STRUCT VALID"],
+                        guards["SAVEDATA PTR"],
                         (savedata_ptr + version_data.ap_save_offset + version_data.recv_item_count_offset_in_ap_save, read_result[0], "ARM9 System Bus"),
-                        (self.ap_struct_address + version_data.recv_state_offset, b'\0', "ARM9 System Bus"),
+                        (self.ap_struct_address + version_data.recv_state_offset, b'\x01', "ARM9 System Bus"),
                         (self.ap_struct_address + version_data.remote_item_queue_offset, read_result[2], "ARM9 System Bus"),
                     ]
-                ):
-                    return
+                )
 
             read_result = await bizhawk.guarded_read(
                 ctx.bizhawk_ctx,
