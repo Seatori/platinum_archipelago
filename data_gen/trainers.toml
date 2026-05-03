@@ -4489,7 +4489,7 @@ party = [
     { species = "fearow", level = 57, num_moves = 0 },
     { species = "noctowl", level = 59, num_moves = 0 },
 ]
-label = "Stark Mountain - Bird Keeper Krystal"
+label = "Stark Mountain Cavern - Bird Keeper Krystal"
 requires_national_dex = true
 
 [dragon_tamer_geoffrey]
@@ -4534,7 +4534,7 @@ party = [
     { species = "gabite", level = 57, num_moves = 0 },
     { species = "dragonair", level = 57, num_moves = 0 },
 ]
-label = "Stark Mountain - Dragon Tamer Drake"
+label = "Stark Mountain Cavern - Dragon Tamer Drake"
 requires_national_dex = true
 
 [dragon_tamer_kenny]
@@ -4544,7 +4544,7 @@ party = [
     { species = "shelgon", level = 57, num_moves = 0 },
     { species = "vibrava", level = 57, num_moves = 0 },
 ]
-label = "Stark Mountain - Dragon Tamer Kenny"
+label = "Stark Mountain Cavern - Dragon Tamer Kenny"
 requires_national_dex = true
 
 [ace_trainer_rodolfo]
@@ -4608,7 +4608,7 @@ party = [
     { species = "electabuzz", level = 58, num_moves = 0 },
     { species = "banette", level = 59, num_moves = 0 },
 ]
-label = "Stark Mountain - Ace Trainer Keenan"
+label = "Stark Mountain Cavern - Ace Trainer Keenan"
 requires_national_dex = true
 
 [ace_trainer_stefan]
@@ -4617,7 +4617,7 @@ party = [
     { species = "pupitar", level = 58, num_moves = 0 },
     { species = "torterra", level = 61, num_moves = 0 },
 ]
-label = "Stark Mountain - Ace Trainer Stefan"
+label = "Stark Mountain Cavern - Ace Trainer Stefan"
 requires_national_dex = true
 
 [ace_trainer_skylar]
@@ -4627,7 +4627,7 @@ party = [
     { species = "rampardos", level = 59, num_moves = 4 },
     { species = "pelipper", level = 58, num_moves = 4 },
 ]
-label = "Stark Mountain - Ace Trainer Skylar"
+label = "Stark Mountain Cavern - Ace Trainer Skylar"
 requires_national_dex = true
 
 [ace_trainer_abel]
@@ -4636,7 +4636,7 @@ party = [
     { species = "glalie", level = 59, num_moves = 4 },
     { species = "crobat", level = 60, num_moves = 4 },
 ]
-label = "Stark Mountain - Ace Trainer Abel"
+label = "Stark Mountain Cavern - Ace Trainer Abel"
 requires_national_dex = true
 
 [ace_trainer_deanna]
@@ -4703,7 +4703,7 @@ party = [
     { species = "onix", level = 58, num_moves = 4 },
     { species = "ampharos", level = 59, num_moves = 4 },
 ]
-label = "Stark Mountain - Ace Trainer Kassandra"
+label = "Stark Mountain Cavern - Ace Trainer Kassandra"
 requires_national_dex = true
 
 [ace_trainer_jasmin]
@@ -4711,7 +4711,7 @@ id = 580
 party = [
     { species = "drapion", level = 61, num_moves = 4 },
 ]
-label = "Stark Mountain - Ace Trainer Jasmin"
+label = "Stark Mountain Cavern - Ace Trainer Jasmin"
 requires_national_dex = true
 
 [ace_trainer_natasha]
@@ -4721,7 +4721,7 @@ party = [
     { species = "gardevoir", level = 59, num_moves = 4 },
     { species = "medicham", level = 58, num_moves = 4 },
 ]
-label = "Stark Mountain - Ace Trainer Natasha"
+label = "Stark Mountain Cavern - Ace Trainer Natasha"
 requires_national_dex = true
 
 [ace_trainer_monique]
@@ -4731,7 +4731,7 @@ party = [
     { species = "ursaring", level = 59, num_moves = 4 },
     { species = "gliscor", level = 58, num_moves = 4 },
 ]
-label = "Stark Mountain - Ace Trainer Monique"
+label = "Stark Mountain Cavern - Ace Trainer Monique"
 requires_national_dex = true
 
 [psychic_corbin]
@@ -4749,7 +4749,7 @@ party = [
     { species = "solrock", level = 57, num_moves = 0 },
     { species = "gallade", level = 59, num_moves = 0 },
 ]
-label = "Stark Mountain - Psychic Sterling"
+label = "Stark Mountain Cavern - Psychic Sterling"
 requires_national_dex = true
 
 [psychic_daisy]
@@ -4767,7 +4767,7 @@ party = [
     { species = "lunatone", level = 57, num_moves = 0 },
     { species = "gardevoir", level = 59, num_moves = 0 },
 ]
-label = "Stark Mountain - Psychic Chelsey"
+label = "Stark Mountain Cavern - Psychic Chelsey"
 requires_national_dex = true
 
 [black_belt_davon]
@@ -4795,7 +4795,7 @@ party = [
     { species = "breloom", level = 58, num_moves = 4 },
     { species = "toxicroak", level = 58, num_moves = 4 },
 ]
-label = "Stark Mountain - Black Belt Ray"
+label = "Stark Mountain Cavern - Black Belt Ray"
 requires_national_dex = true
 
 [black_belt_jarrett]
@@ -4803,7 +4803,7 @@ id = 590
 party = [
     { species = "machamp", level = 60, num_moves = 4 },
 ]
-label = "Stark Mountain - Black Belt Jarrett"
+label = "Stark Mountain Cavern - Black Belt Jarrett"
 requires_national_dex = true
 
 [ranger_kyler]
@@ -4952,7 +4952,7 @@ party = [
     { species = "drifblim", level = 58, num_moves = 4 },
     { species = "shiftry", level = 59, num_moves = 4 },
 ]
-label = "Stark Mountain - Veteran Harlan"
+label = "Stark Mountain Cavern - Veteran Harlan"
 requires_national_dex = true
 
 [rival_spear_pillar_piplup]
@@ -7633,7 +7633,7 @@ party = [
     { species = "golbat", level = 58, num_moves = 4 },
     { species = "purugly", level = 60, num_moves = 4 },
 ]
-label = "Stark Mountain - Commander Mars"
+label = "Stark Mountain Entrance - Commander Mars"
 requires_national_dex = true
 
 [commander_jupiter_stark_mountain]
@@ -7643,5 +7643,5 @@ party = [
     { species = "golbat", level = 58, num_moves = 4 },
     { species = "skuntank", level = 60, num_moves = 4 },
 ]
-label = "Stark Mountain - Commander Jupiter"
+label = "Stark Mountain Entrance - Commander Jupiter"
 requires_national_dex = true
