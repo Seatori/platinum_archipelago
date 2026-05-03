@@ -446,14 +446,8 @@ def generate_output(world: "PokemonPlatinumWorld", output_directory: str, patch:
                     else:
                         new_spec = world.random.choice(enc_pool)
                     table_map.append((species[slot.species].id, species[new_spec].id))
-        for ids, speenc in [
-            ([0], "feebas_fishing"),
-            ([2, 3, 5, 6], "regular_honey_tree"),
-            ([4, 7], "munchlax_honey_tree"),
-            ([8], "trophy_garden"),
-            ([9], "great_marsh_observatory_national_dex"),
-            ([10], "great_marsh_observatory"),
-        ]:
+
+        def get_speenc_map(speenc: str) -> list[tuple[int, int]]:
             e2: Sequence[str] = getattr(special_encounters, speenc)
             spec_map = []
             for i, spec in enumerate(e2):
@@ -462,8 +456,24 @@ def generate_output(world: "PokemonPlatinumWorld", output_directory: str, patch:
                 else:
                     new_spec = world.random.choice(enc_pool)
                 spec_map.append((species[spec].id, species[new_spec].id))
-            for id in ids:
-                speenc_patches[id] = spec_map
+            return spec_map
+        for ids, speenc in [
+            (0, "feebas_fishing"),
+            ([2, 3, 5, 6], "regular_honey_tree"),
+            ([4, 7], "munchlax_honey_tree"),
+            (8, "trophy_garden"),
+            (9, ["great_marsh_observatory", "great_marsh_observatory_national_dex"]),
+            (10, "great_marsh_observatory"),
+        ]:
+            if isinstance(speenc, str):
+                spec_map = get_speenc_map(speenc)
+            else:
+                spec_map = [v for key in speenc for v in get_speenc_map(key)]
+            if isinstance(ids, list):
+                for id in ids:
+                    speenc_patches[id] = spec_map
+            else:
+                speenc_patches[ids] = spec_map
     if len(encounter_patches) > 0:
         patch.write_file("encounter_patches.json", json.dumps(encounter_patches).encode('utf-8'))
     if len(speenc_patches) > 0:
