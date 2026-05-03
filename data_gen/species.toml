@@ -2916,7 +2916,7 @@ hms = [
     "rock_smash",
 ]
 id = 29
-label = "NIDORAN♀"
+label = "NIDORAN FEMALE"
 level_learnset = [
     [
         1,
@@ -3250,7 +3250,7 @@ hms = [
     "rock_smash",
 ]
 id = 32
-label = "NIDORAN♂"
+label = "NIDORAN MALE"
 level_learnset = [
     [
         1,
