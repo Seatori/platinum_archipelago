@@ -4561,7 +4561,7 @@ id = 564
 party = [
     { species = "tauros", level = 61, num_moves = 4 },
 ]
-label = "Route 227 Lower - Ace Trainer Saul"
+label = "Route 227 - Ace Trainer Saul"
 requires_national_dex = true
 
 [ace_trainer_jose]
@@ -4674,7 +4674,7 @@ party = [
     { species = "persian", level = 56, num_moves = 4 },
     { species = "absol", level = 56, num_moves = 4 },
 ]
-label = "Route 227 Lower - Ace Trainer Mikayla"
+label = "Route 227 - Ace Trainer Mikayla"
 requires_national_dex = true
 
 [ace_trainer_meagan]
@@ -4851,7 +4851,7 @@ party = [
     { species = "skiploom", level = 59, num_moves = 0 },
     { species = "lopunny", level = 59, num_moves = 0 },
 ]
-label = "Route 227 Lower - Ranger Felicia"
+label = "Route 227 - Ranger Felicia"
 requires_national_dex = true
 
 [ranger_krista]
