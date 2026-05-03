@@ -445,11 +445,6 @@ exits = [
     "route_227",
     "route_226_east",
 ]
-trainers = [
-    "ace_trainer_saul",
-    "ranger_felicia",
-    "ace_trainer_mikayla",
-]
 
 [route_227]
 accessible_encounters = [
@@ -469,6 +464,9 @@ locs = [
 ]
 group = "fight_area"
 trainers = [
+    "ace_trainer_saul",
+    "ranger_felicia",
+    "ace_trainer_mikayla",
     "black_belt_griffin",
 ]
 
