@@ -90,7 +90,7 @@ encs.ravaged_path.water = "rock_smash"
 
 locs.route_204_north_tm78 = "cut"
 
-exits.floaroma_town.route_205_south = "works_key | surf"
+exits.route_205_south_bottom.route_205_south = "works_key | surf"
 exits.valley_windworks_outside.valley_windworks_building = "works_key"
 exits.route_205_south.fuego_ironworks_outside = "surf"
 locs.valley_windworks_outside_tm24 = "surf"
