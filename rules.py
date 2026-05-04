@@ -4,9 +4,7 @@
 # Licensed under MIT. See LICENSE
 
 from collections.abc import Sequence
-from BaseClasses import CollectionState
 from typing import TYPE_CHECKING
-from worlds.generic.Rules import add_rule, set_rule
 
 from .data import encounters as encounterdata, Hm, items as itemdata, regions as regiondata, rules as ruledata, trainers as trainerdata, species as speciesdata
 from .locations import is_location_in_world, get_parent_region
@@ -28,9 +26,9 @@ def set_rules(world: "PokemonPlatinumWorld") -> None:
         if world.options.requires_badge(hm.name):
             rule = ruledata.create_hm_badge_rule(hm, world.player)
         else:
-            rule = ruledata.always_true
+            rule = ruledata.True_()
         common_rules[f"{hm.name.lower()}_badge"] = rule
-    rules = ruledata.Rules(world.player, common_rules, world.options)
+    rules = ruledata.Rules(common_rules, world.options)
 
     rules.fill_rules()
 
@@ -38,15 +36,15 @@ def set_rules(world: "PokemonPlatinumWorld") -> None:
 
     for (src, dest), rule in rules.exit_rules.items():
         if is_region_enabled(src, world.options) and is_region_enabled(dest, world.options):
-            set_rule(world.multiworld.get_entrance(f"{src} -> {dest}", world.player), rule)
-
-    for name, rule in rules.location_rules.items():
-        if is_location_present(name, world):
-            set_rule(world.multiworld.get_location(name, world.player), rule)
+            world.set_rule(world.multiworld.get_entrance(f"{src} -> {dest}", world.player), rule)
 
     for loc in world.multiworld.get_locations(world.player):
-        if loc.type in rules.location_type_rules: # type: ignore
-            add_rule(loc, rules.location_type_rules[loc.type]) # type: ignore
+        if loc.type in rules.location_type_rules and loc.name in rules.location_rules: # type: ignore
+            world.set_rule(loc, rules.location_type_rules[loc.type] & rules.location_rules[loc.name]) # type: ignore
+        elif loc.type in rules.location_type_rules: # type: ignore
+            world.set_rule(loc, rules.location_type_rules[loc.type]) # type: ignore
+        elif loc.name in rules.location_rules:
+            world.set_rule(loc, rules.location_rules[loc.name])
 
     for name, rule in rules.trainer_rules.items():
         if name.startswith("rival_"):
@@ -54,37 +52,43 @@ def set_rules(world: "PokemonPlatinumWorld") -> None:
         else:
             parent_region = trainerdata.trainers[name].parent_region
         if is_region_enabled(parent_region, world.options):
-            set_rule(world.multiworld.get_entrance(f"{parent_region} -> trainer_{name}", world.player), rule)
+            world.set_rule(world.multiworld.get_entrance(f"{parent_region} -> trainer_{name}", world.player), rule)
 
     done_headers = set()
     for region_name, region_data in regiondata.regions.items():
         header = region_data.header
         if not is_region_enabled(region_name, world.options):
             continue
-        if header in encounterdata.encounters and header not in done_headers:
-            done_headers.add(header)
-            for type, table in encounterdata.encounter_type_pairs:
-                e: Sequence[encounterdata.EncounterSlot] = getattr(encounterdata.encounters[header], table)
-                if not e:
-                    continue
-                if type == "water" and table in (rules.encounter_type_rules.keys() & world.options.in_logic_encounters):
-                    for i in range(len(e)):
-                        set_rule(world.multiworld.get_location(f"{header}_{table}_{i + 1}", world.player), rules.encounter_type_rules[table])
-                elif type == "land":
-                    for i, slot in enumerate(e):
-                        if slot.accessibility and (set(slot.accessibility) & world.options.in_logic_encounters.value):
-                            set_rule(world.multiworld.get_location(f"{header}_land_{i + 1}", world.player), rules.get_enc_accessibility_rule(slot.accessibility))
+        for type in region_data.accessible_encounters:
+            if header in encounterdata.encounters and (header, type) not in done_headers:
+                done_headers.add((header, type))
+                for table in encounterdata.encounter_type_tables[type]:
+                    e: Sequence[encounterdata.EncounterSlot] = getattr(encounterdata.encounters[header], table)
+                    if not e:
+                        continue
+                    if type == "water" and table in (rules.encounter_type_rules.keys() & world.options.in_logic_encounters):
+                        for i in range(len(e)):
+                            world.set_rule(world.multiworld.get_location(f"{header}_{table}_{i + 1}", world.player), rules.encounter_type_rules[table])
+                    elif type == "land":
+                        for i, slot in enumerate(e):
+                            if slot.accessibility and (set(slot.accessibility) & world.options.in_logic_encounters.value):
+                                world.set_rule(world.multiworld.get_location(f"{header}_land_{i + 1}", world.player), rules.get_enc_accessibility_rule(slot.accessibility))
+                    elif type == "long_grass":
+                        accessibility_mask = (encounterdata.possible_accessibilities - {"radar"}) & world.options.in_logic_encounters.value
+                        for i, slot in enumerate(e):
+                            if slot.accessibility and (set(slot.accessibility) & accessibility_mask):
+                                world.set_rule(world.multiworld.get_location(f"{header}_long_grass_land_{i + 1}", world.player), rules.get_enc_accessibility_rule(slot.accessibility))
         if region_data.honey_tree_idx is not None:
-            set_rule(world.multiworld.get_entrance(f"{region_name} -> speenc_regular_honey_tree", world.player), rules.encounter_type_rules["regular_honey_tree"])
+            world.set_rule(world.multiworld.get_entrance(f"{region_name} -> speenc_regular_honey_tree", world.player), rules.encounter_type_rules["regular_honey_tree"])
             if region_data.honey_tree_idx in world.generated_munchlax_trees:
-                set_rule(world.multiworld.get_entrance(f"{region_name} -> speenc_munchlax_honey_tree", world.player), rules.encounter_type_rules["munchlax_honey_tree"])
+                world.set_rule(world.multiworld.get_entrance(f"{region_name} -> speenc_munchlax_honey_tree", world.player), rules.encounter_type_rules["munchlax_honey_tree"])
 
     for mon in world.dexsanity_specs:
-        set_rule(world.multiworld.get_location(f"Pokedex - " + speciesdata.species[mon].label, world.player), rules.get_once_mon_rule(mon))
+        world.set_rule(world.multiworld.get_location(f"Pokedex - " + speciesdata.species[mon].label, world.player), rules.get_once_mon_rule(mon))
 
     am_set = frozenset(world.accessible_mons)
     for mon in world.accessible_mons:
-        set_rule(world.multiworld.get_location(f"mon_map_{mon}", world.player), rules.get_mon_rule(mon))
+        world.set_rule(world.multiworld.get_location(f"mon_map_{mon}", world.player), rules.get_mon_rule(mon))
         data = speciesdata.species[mon]
         if data.pre_evolution is None:
             continue
@@ -95,20 +99,20 @@ def set_rules(world: "PokemonPlatinumWorld") -> None:
             continue
         rule = rules.get_pevo_rule(pevo, world.options)
         if rule is not None:
-            set_rule(world.multiworld.get_location(f"evo_to_{mon}", world.player), rule)
+            world.set_rule(world.multiworld.get_location(f"evo_to_{mon}", world.player), rule)
     for mon in world.accessible_once_mons:
-        set_rule(world.multiworld.get_location(f"mon_map_once_{mon}", world.player), rules.get_once_mon_rule(mon))
+        world.set_rule(world.multiworld.get_location(f"mon_map_once_{mon}", world.player), rules.get_once_mon_rule(mon))
 
     if "roamers" in world.options.in_logic_encounters:
         for i in [0, 1, 3, 4, 5]:
-            set_rule(world.multiworld.get_location(f"roamer_{i}", world.player), rules.get_roamer_rule(i))
+            world.set_rule(world.multiworld.get_location(f"roamer_{i}", world.player), rules.get_roamer_rule(i))
 
     match world.options.goal.value:
         case Goal.option_champion:
             goal_event = "event_beat_cynthia"
         case _:
             raise ValueError(f"invalid goal {world.options.goal}")
-    world.multiworld.completion_condition[world.player] = lambda state : state.has(goal_event, world.player)
+    world.set_completion_rule(ruledata.Has(goal_event))
 
 def verify_hm_accessibility(world: "PokemonPlatinumWorld") -> None:
     if world.options.hm_reader_mode == HMReaderMode.option_noreq_mon:

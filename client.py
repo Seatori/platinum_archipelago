@@ -51,6 +51,10 @@ TRACKED_EVENTS = [
     "beat_cynthia",
     "distortion_world",
     "valley_windworks_defeat_team_galactic",
+    "stark_mountain_arrest_team_galactic",
+    "activate_roaming_moltres_zapdos_articuno",
+    "activate_roaming_cresselia",
+    "activate_roaming_mesprit",
 ]
 TRACKED_UNRANDOMIZED_REQUIRED_LOCATIONS = sorted(maximal_required_locations)
 TRACKED_HEIGHT_MAP_HEADERS = {35, 350}

@@ -2004,6 +2004,7 @@ trainers = [
     "belle_and_pa_ava_and_matt",
     "rancher_marco",
 ]
+accessible_encounters = ["long_grass"]
 honey_tree_idx = 6
 
 [route_209_lost_tower_2f]

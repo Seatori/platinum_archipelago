@@ -5,6 +5,7 @@
 
 from collections.abc import Mapping
 from .locations import LocationCheck, VarCheck, FlagCheck, OnceCheck
+import operator
 
 event_checks: Mapping[str, LocationCheck] = {
     # TEMPLATE: EVENT_CHECKS

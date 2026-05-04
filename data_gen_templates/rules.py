@@ -6,60 +6,45 @@
 from typing import Tuple, TYPE_CHECKING
 from BaseClasses import CollectionState
 from collections.abc import Callable, Mapping, MutableMapping, MutableSequence, Sequence
+from rule_builder.rules import Has, HasAll, HasAny, Rule, True_, HasFromListUnique, Or, And
+import operator
 
 from . import Hm, items, locations, species
 
 if TYPE_CHECKING:
     from ..options import PokemonPlatinumOptions
 
-Rule = Callable[[CollectionState], bool]
-
-def always_true(*args, **kwargs) -> bool:
-    return True
-
-def create_hm_badge_rule(hm: Hm, player: int) -> Rule:
+def create_hm_badge_rule(hm: Hm) -> Rule:
     badge_item = hm.badge_item()
     if badge_item is not None:
-        def hm_badge_rule(state: CollectionState) -> bool:
-            return state.has(badge_item, player)
+        return Has(badge_item)
     else:
-        def hm_badge_rule(state: CollectionState) -> bool:
-            return True
-    return hm_badge_rule
+        return True_()
 
 class Rules:
     exit_rules: Mapping[Tuple[str, str], Rule]
     location_rules: Mapping[str, Rule]
     encounter_type_rules: Mapping[str, Rule]
     location_type_rules: Mapping[str, Rule]
-    common_rules: MutableMapping[str, Callable]
+    common_rules: MutableMapping[str, Callable[..., Rule] | Rule]
     trainer_rules: Mapping[str, Rule]
     opts: "PokemonPlatinumOptions"
     cached_enc_accessibility_rules: MutableMapping[frozenset[str], Rule]
-    hm_mons: MutableMapping[Hm, MutableSequence[str]]
+    hm_mon_rules: MutableMapping[Hm, Rule]
     
-    def __init__(self, player: int, common_rules: MutableMapping[str, Callable], opts: "PokemonPlatinumOptions"):
-        self.player = player
+    def __init__(self, common_rules: MutableMapping[str, Callable[..., Rule] | Rule], opts: "PokemonPlatinumOptions"):
         self.opts = opts
         self.common_rules = common_rules
         self.cached_enc_accessibility_rules = {}
         self.hm_mons = {}
         def see_regional_mons(n: int) -> Rule:
-            mons = [f"see_mon_{spec}" for spec in species.regional_mons]
-            def rule(state: CollectionState) -> bool:
-                return state.has_from_list_unique(mons, player, n)
-            return rule
+            return HasFromListUnique(*[f"see_mon_{spec}" for spec in species.regional_mons], count=n)
         def see_mons(n: int) -> Rule:
-            mons = [f"see_mon_{spec}" for spec in species.species.keys()]
-            def rule(state: CollectionState) -> bool:
-                return state.has_from_list_unique(mons, player, n)
-            return rule
+            return HasFromListUnique(*[f"see_mon_{spec}" for spec in species.species.keys()], count=n)
         def badges(n: int) -> Rule:
-            badges = [items.items[loc.original_item].label
-                for loc in locations.locations.values() if loc.type == "badge"]
-            def rule(state: CollectionState) -> bool:
-                return state.has_from_list_unique(badges, player, n)
-            return rule
+            badges = tuple(items.items[loc.original_item].label # type: ignore
+                for loc in locations.locations.values() if loc.type == "badge")
+            return HasFromListUnique(*badges, count=n)
         self.common_rules["see_regional_mons"] = see_regional_mons
         self.common_rules["see_mons"] = see_mons
         self.common_rules["badges"] = badges
@@ -85,21 +70,14 @@ class Rules:
 
     def get_use_hm_rule(self, hm: Hm) -> Rule:
         if hm not in self.hm_mons:
-            self.hm_mons[hm] = ["mon_" + mon for mon, data in species.species.items() if hm in data.hms]
-        def rule(state: CollectionState) -> bool:
-            return state.has_any(self.hm_mons[hm], self.player)
-        return rule
+            self.hm_mons[hm] = HasAny(*["mon_" + mon for mon, data in species.species.items() if hm in data.hms])
+        return self.hm_mons[hm]
 
     def get_enc_accessibility_rule(self, accessibility: Sequence[str]) -> Rule:
         nmd = frozenset(acc for acc in accessibility if acc in self.encounter_type_rules)
         if nmd in self.cached_enc_accessibility_rules:
             return self.cached_enc_accessibility_rules[nmd]
-        rules = [self.encounter_type_rules[acc] for acc in accessibility if acc in self.encounter_type_rules]
-        def rule(state: CollectionState) -> bool:
-            for rule in rules:
-                if rule(state):
-                    return True
-            return False
+        rule = Or(*[self.encounter_type_rules[acc] for acc in accessibility if acc in self.encounter_type_rules])
         self.cached_enc_accessibility_rules[nmd] = rule
         return rule
 
@@ -107,14 +85,11 @@ class Rules:
         mthd = pevo.method
         reqd_items = [f"mon_{pevo.species}"]
         if mthd.startswith("trade"):
-            reqd_items.append(items.items["linking_cord"].label)
-            reqd_items.append(items.items["bag"].label)
+            reqd_items.extend([items.items["linking_cord"].label, items.items["bag"].label])
         if mthd.endswith("day"):
-            reqd_items.append(items.items["daytime"].label)
-            reqd_items.append(items.items["poketch"].label)
+            reqd_items.extend([items.items["daytime"].label, items.items["poketch"].label])
         elif mthd.endswith("night"):
-            reqd_items.append(items.items["nighttime"].label)
-            reqd_items.append(items.items["poketch"].label)
+            reqd_items.extend([items.items["nighttime"].label, items.items["poketch"].label])
         if pevo.item is not None:
             reqd_items.append(pevo.item)
             if "held" not in mthd:
@@ -134,24 +109,13 @@ class Rules:
         if "beauty" in mthd:
             reqd_items.extend(["event_veilstone_city", items.items["poffin_case"].label, "event_hearthome_city", items.items["bag"].label])
 
-        def rule(state: CollectionState) -> bool:
-            return state.has_all(reqd_items, self.player)
-        return rule
+        return HasAll(*reqd_items)
 
     def get_mon_rule(self, mon: str) -> Rule:
-        mon = f"mon_{mon}"
-        def mon_rule(state: CollectionState) -> bool:
-            return state.has(mon, self.player)
-        return mon_rule
+        return Has(f"mon_{mon}")
 
     def get_once_mon_rule(self, mon: str) -> Rule:
-        mon = f"once_mon_{mon}"
-        def mon_rule(state: CollectionState) -> bool:
-            return state.has(mon, self.player)
-        return mon_rule
+        return Has(f"once_mon_{mon}")
 
     def get_roamer_rule(self, roamer: int) -> Rule:
-        item = f"event_roamer_{roamer}"
-        def roamer_rule(state: CollectionState) -> bool:
-            return state.has(item, self.player)
-        return roamer_rule
+        return Has(f"event_roamer_{roamer}")

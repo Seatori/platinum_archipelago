@@ -21,9 +21,16 @@ class RuleOp(StrEnum):
     def get_has(self):
         match self:
             case RuleOp.AND:
-                return "all"
+                return "All"
             case RuleOp.OR:
-                return "any"
+                return "Any"
+
+    def get_rule_class(self):
+        match self:
+            case RuleOp.AND:
+                return "And"
+            case RuleOp.OR:
+                return "Or"
 
 class Comparison(StrEnum):
     EQ = "=="
@@ -165,30 +172,17 @@ class FuncCall:
 
 @dataclass(frozen=True)
 class CountItem:
-    names: Set[str]
+    name: str
     count: str
-    op: RuleOp = RuleOp.AND
 
     def add_dependent_items(self, conds: ItemConditions, cond: Condition | None = None):
-        for item in self.names:
-            conds.add(item, cond)
+        conds.add(self.name, cond)
 
     def to_string(
         self,
         item_name_map: Callable[[str], str]
     ) -> str:
-        if len(self.names) > 1:
-            centre = ", ".join(map(self.names, item_name_map)) # type: ignore
-            match self.op:
-                case RuleOp.AND:
-                    ext = "all_counts"
-                case RuleOp.OR:
-                    ext = "any_count"
-            return f"state.has_{ext}({centre}, self.player, {self.count})"
-        else:
-            for item in self.names:
-                break
-            return f"state.has({item_name_map(item)}, self.player, {self.count})" # type: ignore
+        return f"Has({item_name_map(self.name)}, count={self.count})" # type: ignore
 
 @dataclass(frozen=True)
 class Rule:
@@ -222,21 +216,21 @@ class Rule:
             case 1:
                 for item in str_items:
                     break
-                exprs = [f"state.has({item_name_map(item)}, self.player)"] # type: ignore
+                exprs = [f"Has({item_name_map(item)})"] # type: ignore
             case _:
-                exprs = [f"state.has_{self.op.get_has()}([{', '.join(map(item_name_map, str_items))}], self.player)"]
+                exprs = [f"Has{self.op.get_has()}({', '.join(map(item_name_map, str_items))})"]
         for val in self.items - item_set:
             if isinstance(val, str):
-                exprs.append(f"self.common_rules[\"{val}\"](state)")
+                exprs.append(f"self.common_rules[\"{val}\"]")
             elif isinstance(val, Rule):
                 exprs.append(val.to_string(item_set, item_name_map, self.op))
             elif isinstance(val, FuncCall):
-                exprs.append(f"{val}(state)")
+                exprs.append(f"{val}")
             elif isinstance(val, CountItem):
                 exprs.append(val.to_string(item_name_map))
-        centre = f" {self.op.name.lower()} ".join(exprs)
+        centre = "{}({})".format(self.op.get_rule_class(), f", ".join(exprs))
         if parent_op is None:
-            return "lambda state : " + centre
+            return centre
         elif parent_op is RuleOp.AND and self.op is RuleOp.OR and len(exprs) > 1:
             return f"({centre})"
         else:
@@ -261,7 +255,7 @@ class RuleWithOpts:
             if cond is None:
                 return f"{accum}({rule.to_string(item_set, item_name_map)})"
             accum += f"({rule.to_string(item_set, item_name_map)}) if {cond} else "
-        return f"{accum}always_true"
+        return f"{accum}True_()"
 
 LPAR, RPAR, LS, RS, LC, RC, COLON, AST = map(Suppress, "()[]{}:*")
 IF = Suppress("if")
@@ -326,9 +320,9 @@ count_seq_and = LS + delimited_list(NAME, delim='&', min=1) + RS
 count_seq_and.set_parse_action(lambda val : (frozenset(val), RuleOp.AND))
 count_seq_or = LS + delimited_list(NAME, delim='|', min=1) + RS
 count_seq_or.set_parse_action(lambda val : (frozenset(val), RuleOp.OR))
-count_name = Word(alphas + "_", alphanums + "_").set_parse_action(lambda val : (frozenset([val[0]]), RuleOp.AND))
-count_v = (count_name | count_seq_and | count_seq_or) + AST + integer
-count_v.set_parse_action(lambda v : CountItem(v[0][0], v[1], v[0][1])) # type: ignore
+count_name = Word(alphas + "_", alphanums + "_").set_parse_action(lambda val : val[0])
+count_v = count_name + AST + integer
+count_v.set_parse_action(lambda v : CountItem(v[0], v[1])) # type: ignore
 
 operand = count_v | func_call | NAME
 

@@ -189,7 +189,6 @@ def randomize_trainer_parties(world: "PokemonPlatinumWorld", req_specs: Set[str]
     world.generated_trainer_parties.update({slot:spec for slot, spec in zip(before_slots, before_mons)})
     world.generated_trainer_parties.update({slot:spec for slot, spec in zip(after_slots, after_mons)})
 
-
 def randomize_trainer_parties_and_encounters(world: "PokemonPlatinumWorld") -> None:
     if world.options.randomize_encounters and world.options.randomize_trainer_parties:
         bl = world.options.encounter_species_blacklist.blacklist()
@@ -314,6 +313,8 @@ def fill_species(world: "PokemonPlatinumWorld") -> None:
         world.multiworld.get_location(f"{hdr}_{tbl}_{i + 1}", world.player).place_locked_item(world.create_event(f"mon_{spec}"))
     for (speenc, i), spec in world.generated_speencs.items():
         world.multiworld.get_location(f"speenc_{speenc}_{i + 1}", world.player).place_locked_item(world.create_event(f"mon_{spec}"))
+    for header, i in world.long_grass_slots:
+        world.multiworld.get_location(f"{header}_long_grass_land_{i + 1}", world.player).place_locked_item(world.create_event(f"mon_{world.generated_encounters[(header, "land", i)]}"))
 
     if "roamers" in world.options.in_logic_encounters:
         for i, spec in zip([0, 1, 3, 4, 5], world.generated_roamers):

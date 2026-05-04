@@ -11,7 +11,7 @@ from typing import Tuple, TYPE_CHECKING
 from worlds.pokemon_platinum.options import PokemonPlatinumOptions
 
 from .data import regions as regiondata
-from .data.encounters import EncounterSlot, encounters, encounter_type_tables
+from .data.encounters import EncounterSlot, encounters, encounter_type_tables, possible_accessibilities
 from .data.trainers import trainer_party_supporting_starters
 from .data import special_encounters
 from .locations import PokemonPlatinumLocation
@@ -62,12 +62,24 @@ def create_regions(world: "PokemonPlatinumWorld") -> Tuple[Mapping[str, Region],
                     if not e:
                         continue
 
+                    if type == "long_grass":
+                        accessibility_mask = possible_accessibilities - {"radar"}
+                    else:
+                        accessibility_mask = possible_accessibilities
+
+                    accessibility_mask &= world.options.in_logic_encounters.value
+
                     for i, slot in enumerate(e):
-                        if slot.accessibility and not set(slot.accessibility) & world.options.in_logic_encounters.value:
+                        if slot.accessibility and not set(slot.accessibility) & accessibility_mask:
                             continue
+                        if type == "long_grass":
+                            loc_name = f"{header}_long_grass_{table}_{i + 1}"
+                            world.long_grass_slots.append((header, i))
+                        else:
+                            loc_name = f"{header}_{table}_{i + 1}"
                         location = PokemonPlatinumLocation(
                             world.player,
-                            f"{header}_{table}_{i + 1}",
+                            loc_name,
                             "mon_event",
                             parent=wild_region,
                         )

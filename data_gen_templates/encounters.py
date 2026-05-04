@@ -29,6 +29,7 @@ encounters: Mapping[str, EncounterData] = {
 
 encounter_type_pairs: Sequence[Tuple[str, str]] = [
     ("land", "land"),
+    ("long_grass", "land"),
     ("water", "surf"),
     ("water", "old_rod"),
     ("water", "good_rod"),
@@ -37,8 +38,11 @@ encounter_type_pairs: Sequence[Tuple[str, str]] = [
 
 encounter_type_tables: Mapping[str, Sequence[str]] = {
     "land": ["land"],
+    "long_grass": ["land"],
     "water": ["surf", "old_rod", "good_rod", "super_rod"],
 }
+
+possible_accessibilities: Set[str] = frozenset(["radar", "ruby", "sapphire", "night", "emerald", "firered", "leafgreen", "day", "swarms"])
 
 national_dex_requiring_encs: Set[str] = {
     # TEMPLATE: NATIONAL_DEX_REQUIRING_ENCS

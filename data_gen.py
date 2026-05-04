@@ -403,7 +403,7 @@ class ParserState:
 
     def validate(self):
         loc_pairs = set()
-        encounter_types = {"land", "water"}
+        encounter_types = {"land", "water", "long_grass"}
         encounter_tables = ["land", "surf", "old_rod", "good_rod", "super_rod"]
         events = set()
         used_locs = set()

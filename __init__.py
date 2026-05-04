@@ -76,6 +76,7 @@ class PokemonPlatinumWorld(World):
     dexsanity_specs: Sequence[str]
     trainersanity_trainers: Sequence[str]
     added_hm_compatibility: MutableMapping[str, MutableSequence[Hm]]
+    long_grass_slots: MutableSequence[Tuple[str, int]]
 
     accessible_mons: Sequence[str]
     accessible_once_mons: Sequence[str]
@@ -97,7 +98,7 @@ class PokemonPlatinumWorld(World):
         self.generated_trainer_parties = {}
         self.added_hm_compatibility = {}
         self.itempool = []
-
+        self.long_grass_slots = []
 
     def generate_early(self) -> None:
         if hasattr(self.multiworld, "generation_is_fake") \
