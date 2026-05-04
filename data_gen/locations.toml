@@ -6013,7 +6013,7 @@ original_item = "choice_specs"
 
 [celestic_town_black_glasses]
 id = 128
-check = 0x134
+check = 0x135
 type = "npc_gift"
 table = "base"
 label = "Celestic Town - Black Glasses from Man in Shop (Day)"
@@ -6021,7 +6021,7 @@ original_item = "blackglasses"
 
 [celestic_town_wise_glasses]
 id = 129
-check = 0x134
+check = 0x136
 type = "npc_gift"
 table = "base"
 label = "Celestic Town - Black Glasses from Man in Shop (Night)"
