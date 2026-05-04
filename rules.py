@@ -24,7 +24,7 @@ def set_rules(world: "PokemonPlatinumWorld") -> None:
     common_rules = {}
     for hm in Hm:
         if world.options.requires_badge(hm.name):
-            rule = ruledata.create_hm_badge_rule(hm, world.player)
+            rule = ruledata.create_hm_badge_rule(hm)
         else:
             rule = ruledata.True_()
         common_rules[f"{hm.name.lower()}_badge"] = rule
