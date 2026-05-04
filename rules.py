@@ -120,6 +120,11 @@ def verify_hm_accessibility(world: "PokemonPlatinumWorld") -> None:
     rules = world.ruledata
 
     def do_verify(hms: list[Hm]):
+
+        rsvds = {
+            hm:rules.common_rules["use_" + hm.name.lower()]._instantiate(world)
+            for hm in Hm
+        }
         while True:
             hms_to_verify = hms.copy()
             unverified_hms = []
@@ -128,9 +133,9 @@ def verify_hm_accessibility(world: "PokemonPlatinumWorld") -> None:
             while hms_to_verify:
                 state = world.get_world_collection_state()
                 hm_to_verify = hms_to_verify[-1]
-                if not rules.common_rules["use_" + hm_to_verify.name.lower()](state):
+                if not rsvds[hm_to_verify]._evaluate(state):
                     if last_hm == hm_to_verify:
-                        if not rules.common_rules["use_" + hm_to_verify.name.lower()](state):
+                        if not rsvds[hm_to_verify]._evaluate(state):
                             unverified_hms.append(hms_to_verify.pop())
                         else:
                             hms_to_verify.pop()
@@ -141,12 +146,11 @@ def verify_hm_accessibility(world: "PokemonPlatinumWorld") -> None:
                     rules.hm_mons[hm_to_verify].append("mon_" + pokemon)
                     world.added_hm_compatibility.setdefault(pokemon, []).append(hm_to_verify)
                     print("added compat:", pokemon, hm_to_verify)
-                    print(rules.common_rules["use_" + hm_to_verify.name.lower()](state))
                 else:
                     hms_to_verify.pop()
             if unverified_hms and unverified_hms == hms:
                 state = world.get_world_collection_state()
-                if any(world.common_rules[hm.name.lower() + "_badge"](state) for hm in unverified_hms):
+                if any(rsvds[hm]._evaluate(state) for hm in unverified_hms):
                     raise Exception(f"Failed to ensure access to {'\n'.join(unverified_hms)} for player {world.player}")
             elif unverified_hms:
                 unverified_hms.reverse()
