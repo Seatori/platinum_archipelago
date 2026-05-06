@@ -22,6 +22,6 @@ beat_cynthia = 2404
 distortion_world = 0x28F
 valley_windworks_defeat_team_galactic = 0x1A5
 stark_mountain_arrest_team_galactic = 214
-activate_roaming_moltres_zapdos_articuno = 0x99
+activate_roaming_moltres_zapdos_articuno = 0x199
 activate_roaming_cresselia = 0x11F
 activate_roaming_mesprit = { id = 16463, value = 4, op = "ne" }
