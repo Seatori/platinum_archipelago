@@ -6,7 +6,7 @@
 from typing import Tuple, TYPE_CHECKING
 from BaseClasses import CollectionState
 from collections.abc import Callable, Mapping, MutableMapping, MutableSequence, Sequence
-from rule_builder.rules import Has, HasAll, HasAny, Rule, True_, HasFromListUnique, Or, And
+from rule_builder.rules import Has, HasAll, HasAny, Rule, True_, False_, HasFromListUnique, Or, And
 import operator
 
 from . import Hm, items, locations, species

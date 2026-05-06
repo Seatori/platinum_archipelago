@@ -1062,6 +1062,8 @@ exits = [
     "pastoria_city_southwest_house",
     "pastoria_city_mart",
     "pastoria_city_north_house",
+    "canalave_city",
+    "snowpoint_city",
 ]
 header = "pastoria_city"
 locs = [
@@ -2588,6 +2590,8 @@ exits = [
     "route_218_gate_to_canalave_city",
     "iron_island",
     "fullmoon_island",
+    "pastoria_city",
+    "snowpoint_city",
 ]
 header = "canalave_city"
 locs = [
@@ -4335,6 +4339,8 @@ exits = [
     "snowpoint_city_west_house",
     "snowpoint_city_east_house",
     "fight_area",
+    "pastoria_city",
+    "canalave_city",
 ]
 header = "snowpoint_city"
 locs = [

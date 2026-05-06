@@ -262,6 +262,9 @@ def generate_output(world: "PokemonPlatinumWorld", output_directory: str, patch:
     add_opt_byte("can_reset_legendaries_in_ap_helper")
     add_opt_byte("evo_items_shop_in_ap_helper")
     add_opt_byte('hm_reader_mode')
+    add_opt_byte('boat_canalave_pastoria')
+    add_opt_byte('boat_canalave_snowpoint')
+    add_opt_byte('boat_pastoria_snowpoint')
 
     # start of save config
     if len(ap_bin) % 2 == 1:

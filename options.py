@@ -684,6 +684,48 @@ class HMReaderMode(Choice):
     option_noreq_mon = 1
     default = option_req_mon
 
+class BoatCanalavePastoria(Choice):
+    """
+    How the boat travels between Canalave city and Pastoria city.
+
+    Options:
+    - off: the boat does not travel between them.
+    - ss_ticket: require the S.S. ticket to travel between them.
+    - on: they can be travelled between always.
+    """
+    option_off = 0
+    option_ss_ticket = 2
+    option_on = 1
+    default = option_off
+
+class BoatCanalaveSnowpoint(Choice):
+    """
+    How the boat travels between Canalave city and Snowpoint city.
+
+    Options:
+    - off: the boat does not travel between them.
+    - ss_ticket: require the S.S. ticket to travel between them.
+    - on: they can be travelled between always.
+    """
+    option_off = 0
+    option_ss_ticket = 2
+    option_on = 1
+    default = option_off
+
+class BoatPastoriaSnowpoint(Choice):
+    """
+    How the boat travels between Pastoria city and Snowpoint city.
+
+    Options:
+    - off: the boat does not travel between them.
+    - ss_ticket: require the S.S. ticket to travel between them.
+    - on: they can be travelled between always.
+    """
+    option_off = 0
+    option_ss_ticket = 2
+    option_on = 1
+    default = option_off
+
 slot_data_options: Sequence[str] = [
     "hms",
     "badges",
@@ -784,18 +826,22 @@ class PokemonPlatinumOptions(PerGameCommonOptions):
     remove_badge_requirements: RemoveBadgeRequirement
     visibility_hm_logic: VisibilityHmLogic
     dowsing_machine_logic: DowsingMachineLogic
-    north_sinnoh_fly: RequireFlyForNorthSinnoh
     parcel_coupons_route_203: RequireParcelCouponsCheckRoute203
     regional_dex_goal: NationalDexNumMons
-    early_sunyshore: SunyshoreEarly
-    pastoria_barriers: PastoriaBarriers
     reusable_tms: ReusableTms
     start_with_swarms: StartWithSwarms
     can_reset_legendaries_in_ap_helper: CanResetLegendariesInAPHelper
     evo_items_shop_in_ap_helper: EvoItemsShopInAPHelper
+
+    pastoria_barriers: PastoriaBarriers
+    north_sinnoh_fly: RequireFlyForNorthSinnoh
+    early_sunyshore: SunyshoreEarly
     
     hm_reader: AddHMReader
     hm_reader_mode: HMReaderMode
+    boat_canalave_pastoria: BoatCanalavePastoria
+    boat_canalave_snowpoint: BoatCanalaveSnowpoint
+    boat_pastoria_snowpoint: BoatPastoriaSnowpoint
 
     randomize_starters: RandomizeStarters
     require_two_level_evolution_starters: RequireTwoLevelEvolutionStarters
@@ -1065,87 +1111,109 @@ class PokemonPlatinumOptions(PerGameCommonOptions):
 OPTION_GROUPS = [
     OptionGroup(
         "Item Shuffles",
-        [RandomizeOverworlds,
-         RandomizeHiddenItems,
-         RandomizeNpcGifts,
-         RandomizeKeyItems,
-         RandomizeHms,
-         RandomizeBadges,
-         RandomizeRods,
-         RandomizeBicycle,
-         AddBag,
-         RandomizeRunningShoes,
-         RandomizePoketchApps,
-         RandomizeCartridges,
-         RandomizePokedex,
-         RandomizeAccessories,
-         RandomizeTimeItems]
+        [
+            RandomizeOverworlds,
+            RandomizeHiddenItems,
+            RandomizeNpcGifts,
+            RandomizeKeyItems,
+            RandomizeHms,
+            RandomizeBadges,
+            RandomizeRods,
+            RandomizeBicycle,
+            AddBag,
+            RandomizeRunningShoes,
+            RandomizePoketchApps,
+            RandomizeCartridges,
+            RandomizePokedex,
+            RandomizeAccessories,
+            RandomizeTimeItems,
+        ],
     ),
     OptionGroup(
-        "Logic and Roadblock Tweaks",
-        [RequireParcelCouponsCheckRoute203,
-         PastoriaBarriers,
-         RequireFlyForNorthSinnoh,
-         SunyshoreEarly,
-         VisibilityHmLogic,
-         DowsingMachineLogic,
-         AddMarshPass,
-         AddStorageKey,
-         AddSSTicket,
-         UnownsOption]
+        "Logic Tweaks",
+        [
+            RequireParcelCouponsCheckRoute203,
+            RequireFlyForNorthSinnoh,
+            VisibilityHmLogic,
+            DowsingMachineLogic,
+            AddMarshPass,
+            AddStorageKey,
+            AddSSTicket,
+            UnownsOption,
+        ],
+    ),
+    OptionGroup(
+        "Roadblock Tweaks",
+        [
+            PastoriaBarriers,
+            SunyshoreEarly,
+            BoatCanalavePastoria,
+            BoatCanalaveSnowpoint,
+            BoatPastoriaSnowpoint,
+        ],
     ),
     OptionGroup(
         "Starters",
-        [RandomizeStarters,
-         RequireTwoLevelEvolutionStarters,
-         StarterWhitelist,
-         StarterBlacklist,
-         RandomizeBunearyInIntro]
+        [
+            RandomizeStarters,
+            RequireTwoLevelEvolutionStarters,
+            StarterWhitelist,
+            StarterBlacklist,
+            RandomizeBunearyInIntro,
+        ],
     ),
     OptionGroup(
         "Pokémon",
-        [RandomizeEncounters,
-         InLogicEncounters,
-         EncounterSpeciesBlacklist,
-         DexsanityCount,
-         DexsanityMode,
-         InLogicEvolutionMethods,
-         EvoItemsShopInAPHelper,
-         ReusableTms,
-         NationalDexNumMons,
-         StartWithSwarms,
-         RandomizeRoamers,
-         RoamerBlacklist,
-         CanResetLegendariesInAPHelper]
+        [
+            RandomizeEncounters,
+            InLogicEncounters,
+            EncounterSpeciesBlacklist,
+            DexsanityCount,
+            DexsanityMode,
+            InLogicEvolutionMethods,
+            EvoItemsShopInAPHelper,
+            ReusableTms,
+            NationalDexNumMons,
+            StartWithSwarms,
+            RandomizeRoamers,
+            RoamerBlacklist,
+            CanResetLegendariesInAPHelper,
+        ],
     ),
     OptionGroup(
         "Trainers",
-        [TrainersanityCount,
-         RandomizeTrainerParties,
-         TrainerPartyBlacklist]
+        [
+            TrainersanityCount,
+            RandomizeTrainerParties,
+            TrainerPartyBlacklist,
+        ],
     ),
     OptionGroup(
         "HMs",
-        [HmBadgeRequirements,
-         RemoveBadgeRequirement,
-         AddHMReader,
-         HMReaderMode]
+        [
+            HmBadgeRequirements,
+            RemoveBadgeRequirement,
+            AddHMReader,
+            HMReaderMode,
+        ],
     ),
     OptionGroup(
         "Quality of Life",
-        [GameOptions,
-         BlindTrainers,
-         HMCutIns,
-         FPS60,
-         BuckPos,
-         HBSpeed,
-         NormalizeEncounters,
-         InstantText,
-         HoldAToAdvance,
-         AlwaysCatch,
-         GuaranteedEscape,
-         TalkTrainersWithoutFight,
-         ExpMultiplier,
-         AddMasterRepel]
-    )
+        [
+            GameOptions,
+            BlindTrainers,
+            HMCutIns,
+            FPS60,
+            BuckPos,
+            HBSpeed,
+            NormalizeEncounters,
+            InstantText,
+            HoldAToAdvance,
+            AlwaysCatch,
+            GuaranteedEscape,
+            TalkTrainersWithoutFight,
+            ExpMultiplier,
+            AddMasterRepel,
+        ],
+    ),
 ]

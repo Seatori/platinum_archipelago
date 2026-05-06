@@ -497,3 +497,15 @@ trainers.rival_survival_area_1 = "event_stark_mountain_arrest_team_galactic"
 common.amity_square = "mon_pikachu | mon_clefairy | mon_psyduck | mon_turtwig | mon_grotle | mon_torterra | mon_chimchar | mon_monferno | mon_infernape | mon_piplup | mon_prinplup | mon_empoleon | mon_pachirisu | mon_drifloon | mon_buneary | mon_happiny | national_dex & (mon_jigglypuff | mon_torchic | mon_shroomish | mon_skitty)"
 exits.hearthome_city_west_gate_to_amity_square.amity_square = "amity_square"
 exits.hearthome_city_east_gate_to_amity_square.amity_square = "amity_square"
+
+common.boat_canalave_pastoria = "True if boat_canalave_pastoria == option_on else s_s_ticket if boat_canalave_pastoria == option_ss_ticket else False"
+exits.pastoria_city.canalave_city = "boat_canalave_pastoria"
+exits.canalave_city.pastoria_city = "boat_canalave_pastoria"
+
+common.boat_canalave_snowpoint = "True if boat_canalave_snowpoint == option_on else s_s_ticket if boat_canalave_snowpoint == option_ss_ticket else False"
+exits.snowpoint_city.canalave_city = "boat_canalave_snowpoint"
+exits.canalave_city.snowpoint_city = "boat_canalave_snowpoint"
+
+common.boat_pastoria_snowpoint = "True if boat_pastoria_snowpoint == option_on else s_s_ticket if boat_pastoria_snowpoint == option_ss_ticket else False"
+exits.snowpoint_city.pastoria_city = "boat_pastoria_snowpoint"
+exits.pastoria_city.snowpoint_city = "boat_pastoria_snowpoint"

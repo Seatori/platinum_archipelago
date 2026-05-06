@@ -208,7 +208,10 @@ class Rule:
             if isinstance(item, FuncCall): # type: ignore
                 return str(item)
             elif item not in item_set and isinstance(item, str): # type: ignore
-                return f"self.common_rules[\"{item}\"]" # type: ignore
+                if item in {"True", "False"}:
+                    return item + "_()"
+                else:
+                    return f"self.common_rules[\"{item}\"]" # type: ignore
         str_items: Set[str] = self.items & item_set # type: ignore
         match len(str_items):
             case 0:
@@ -220,6 +223,8 @@ class Rule:
             case _:
                 exprs = [f"Has{self.op.get_has()}({', '.join(map(item_name_map, str_items))})"]
         for val in self.items - item_set:
+            if val in {"True", "False"}:
+                exprs.append(val + "_()")
             if isinstance(val, str):
                 exprs.append(f"self.common_rules[\"{val}\"]")
             elif isinstance(val, Rule):
