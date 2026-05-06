@@ -504,8 +504,8 @@ exits.canalave_city.pastoria_city = "boat_canalave_pastoria"
 
 common.boat_canalave_snowpoint = "True if boat_canalave_snowpoint == option_on else s_s_ticket if boat_canalave_snowpoint == option_ss_ticket else False"
 exits.snowpoint_city.canalave_city = "boat_canalave_snowpoint"
-exits.canalave_city.snowpoint_city = "boat_canalave_snowpoint"
+exits.canalave_city.snowpoint_city = "fly & boat_canalave_snowpoint if north_sinnoh_fly else boat_canalave_snowpoint"
 
 common.boat_pastoria_snowpoint = "True if boat_pastoria_snowpoint == option_on else s_s_ticket if boat_pastoria_snowpoint == option_ss_ticket else False"
 exits.snowpoint_city.pastoria_city = "boat_pastoria_snowpoint"
-exits.pastoria_city.snowpoint_city = "boat_pastoria_snowpoint"
+exits.pastoria_city.snowpoint_city = "fly & boat_pastoria_snowpoint if north_sinnoh_fly else boat_pastoria_snowpoint"
