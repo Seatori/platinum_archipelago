@@ -2121,7 +2121,7 @@ header = "solaceon_town_northeast_house"
 [route_218_east]
 exits = [
     "route_218_gate_to_jubilife_city",
-    "route_218_west"
+    "route_218_west",
 ]
 header = "route_218"
 locs = [
