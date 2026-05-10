@@ -2141,7 +2141,6 @@ accessible_encounters = [
 exits = [
     "route_218_east",
     "route_218_gate_to_canalave_city",
-    "route_218_honey_tree",
 ]
 header = "route_218"
 trainers = [
