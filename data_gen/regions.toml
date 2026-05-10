@@ -2552,7 +2552,7 @@ trainers = [
 [route_218_gate_to_canalave_city]
 exits = [
     "canalave_city",
-    "route_218",
+    "route_218_west",
 ]
 header = "route_218_gate_to_canalave_city"
 locs = [
@@ -3329,7 +3329,7 @@ trainers = [
 [route_218_gate_to_jubilife_city]
 exits = [
     "jubilife_city",
-    "route_218",
+    "route_218_east",
 ]
 locs = [
     "route_218_gate_to_jubilife_city_old_rod",
