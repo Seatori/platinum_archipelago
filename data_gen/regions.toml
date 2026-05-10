@@ -2122,11 +2122,10 @@ header = "solaceon_town_northeast_house"
 header = "route_218"
 honey_tree_idx = 14
 
-[route_218]
+[route_218_east]
 exits = [
     "route_218_gate_to_jubilife_city",
-    "route_218_gate_to_canalave_city",
-    "route_218_honey_tree",
+    "route_218_west"
 ]
 header = "route_218"
 locs = [
@@ -2135,10 +2134,23 @@ locs = [
     "route_218_x_accuracy",
 ]
 trainers = [
-    "guitarist_tony",
-    "sailor_skyler",
     "fisherman_miguel",
     "fisherman_luc",
+]
+accessible_encounters = [
+    "water",
+]
+
+[route_218_west]
+exits = [
+    "route_218_east",
+    "route_218_gate_to_canalave_city",
+    "route_218_honey_tree",
+]
+header = "route_218"
+trainers = [
+    "guitarist_tony",
+    "sailor_skyler",
 ]
 
 [jubilife_tv_1f]
