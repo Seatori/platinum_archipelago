@@ -9,7 +9,8 @@ from enum import IntEnum
 from NetUtils import ClientStatus
 from Options import Toggle
 from struct import unpack_from
-from typing import Optional, TYPE_CHECKING, Tuple
+import time
+from typing import Any, Optional, TYPE_CHECKING, Tuple
 
 import Utils
 
@@ -254,6 +255,10 @@ class PokemonPlatinumClient(BizHawkClient):
 
     player_name: str | None
 
+    death_link_group: str
+    death_link_state: bool
+    loaded_death_link: bool
+
     def __init__(self):
         super().__init__()
 
@@ -277,6 +282,10 @@ class PokemonPlatinumClient(BizHawkClient):
         self.local_seen_pokemon = bytearray(64)
         self.local_caught_pokemon = bytearray(64)
         self.notify_setup_complete = False
+
+        self.loaded_death_link = False
+        self.death_link_group = ""
+        self.death_link_state = False
 
     async def get_slot_name(self, ctx: "BizHawkClientContext") -> str | None:
         try:
@@ -305,9 +314,10 @@ class PokemonPlatinumClient(BizHawkClient):
 
     async def validate_rom(self, ctx: "BizHawkClientContext") -> bool:
         from CommonClient import logger
-        def remove_cheat():
-            if "cheat" in ctx.command_processor.commands:
-                del ctx.command_processor.commands["cheat"]
+        def remove_commands():
+            for command in ["cheat", "death_link_state", "death_link_group"]:
+                if command in ctx.command_processor.commands:
+                    del ctx.command_processor.commands[command]
 
         try:
             rom_name_bytes = (await bizhawk.read(ctx.bizhawk_ctx, [(0, 12, "ROM")]))[0]
@@ -315,7 +325,7 @@ class PokemonPlatinumClient(BizHawkClient):
             if rom_name == "POKEMON PL":
                 logger.info("ERROR: You appear to be running an unpatched version of Pokémon Platinum. "
                             "You need to generate a patch file and use it to create a patched ROM.")
-                remove_cheat()
+                remove_commands()
                 return False
             elif rom_name.startswith("PLAP "):
                 bad = True
@@ -330,16 +340,16 @@ class PokemonPlatinumClient(BizHawkClient):
                     logger.info("ERROR: The patch file used to create this ROM is not compatible with "
                                 "this client. Double-check your client version against the version being "
                                 "by the generator.")
-                    remove_cheat()
+                    remove_commands()
                     return False
             else:
-                remove_cheat()
+                remove_commands()
                 return False
         except UnicodeDecodeError:
-            remove_cheat()
+            remove_commands()
             return False
         except bizhawk.RequestFailedError:
-            remove_cheat()
+            remove_commands()
             return False
 
         self.player_name = await self.get_slot_name(ctx)
@@ -386,6 +396,17 @@ class PokemonPlatinumClient(BizHawkClient):
                 "cmd": "ConnectUpdate",
                 "items_handling": ctx.items_handling
             }]))
+
+        if not self.loaded_death_link:
+            self.loaded_death_link = True
+            if ctx.slot_data.get("death_link", Toggle.option_false) != Toggle.option_true:
+                self.death_link_group = ""
+                self.death_link_state = False
+            else:
+                self.death_link_group = ctx.slot_data.get("death_link_group", "")
+                self.death_link_state = True
+            ctx.command_processor.commands["death_link_state"] = cmd_death_link_state
+            ctx.command_processor.commands["death_link_group"] = cmd_death_link_group
 
         try:
             ap_struct_guard = (self.ap_struct_address, self.expected_header, "ARM9 System Bus")
@@ -599,12 +620,35 @@ class PokemonPlatinumClient(BizHawkClient):
         except bizhawk.RequestFailedError:
             pass
 
+    def on_package(self, ctx: "BizHawkClientContext", cmd: str, args: dict[str, Any]) -> None:
+        super().on_package(ctx, cmd, args)
+        
+        from CommonClient import logger
+
+        if cmd == "Bounced":
+            tags = args.get("tags", [])
+            if "DeathLink" + self.death_link_group in tags and ctx.last_death_link != args["data"]["time"]:
+                ctx.last_death_link = max(args["data"]["time"], ctx.last_death_link)
+                text = args["data"].get("cause", "")
+                if text:
+                    logger.info("DeathLink: " + text)
+                else:
+                    logger.info("DeathLink: Received from " + args["data"]["source"])
+
     async def handle_death_link(self, ctx: "BizHawkClientContext", guards: Mapping[str, Tuple[int, bytes, str]], version_data: VersionData) -> None:
-        if ctx.slot_data.get("death_link", Toggle.option_false) != Toggle.option_true: # type: ignore
+        if not self.death_link_state:
+            old_tags = ctx.tags.copy()
+            ctx.tags = {t for t in ctx.tags if not t.startswith("DeathLink")}
+            if old_tags != ctx.tags and ctx.server and not ctx.server.socket.closed:
+                await ctx.send_msgs([{"cmd": "ConnectUpdate", "tags": ctx.tags}])
             return
 
-        if "DeathLink" not in ctx.tags:
-            await ctx.update_death_link(True)
+        if "DeathLink" + self.death_link_group not in ctx.tags:
+            old_tags = ctx.tags.copy()
+            ctx.tags = {t for t in ctx.tags if not t.startswith("DeathLink")}
+            ctx.tags.add("DeathLink" + self.death_link_group)
+            if old_tags != ctx.tags and ctx.server and not ctx.server.socket.closed:
+                await ctx.send_msgs([{"cmd": "ConnectUpdate", "tags": ctx.tags}])
             self.previous_death_link = ctx.last_death_link
 
         if self.previous_death_link != ctx.last_death_link:
@@ -634,8 +678,20 @@ class PokemonPlatinumClient(BizHawkClient):
         if self.death_counter is None:
             self.death_counter = num_blacked_out
         elif num_blacked_out > self.death_counter:
-            await ctx.send_death(f"{ctx.player_names[ctx.slot]} is out of usable POKéMON! " # type: ignore
-                                 f"{ctx.player_names[ctx.slot]} blacked out!") # type: ignore
+            if ctx.server and ctx.server.socket:
+                from CommonClient import logger
+                logger.info("DeathLink: Sending death to your friends...")
+                ctx.last_death_link = time.time()
+                await ctx.send_msgs([{
+                    "cmd": "Bounce",
+                    "tags": ["DeathLink" + self.death_link_group],
+                    "data": {
+                        "time": ctx.last_death_link,
+                        "source": ctx.player_names[ctx.slot],
+                        "cause": f"{ctx.player_names[ctx.slot]} is out of usable POKéMON! " # type: ignore
+                                 f"{ctx.player_names[ctx.slot]} blacked out!", # type: ignore
+                    },
+                }])
             self.ignore_next_death_link = True
             self.death_counter = num_blacked_out
 
@@ -679,3 +735,30 @@ def cmd_cheat(self: "BizHawkClientCommandProcessor", name: str | None = None) ->
         logger.info("Activating Pokémon Platinum Cheat " + name)
     else:
         logger.error("Unknown Pokémon Platinum cheat: " + name)
+
+def cmd_death_link_state(self: "BizHawkClientCommandProcessor", state: str | None = None) -> None:
+    """Change the death link state. Enter the command without any arguments to print the current state. States are on or off."""
+    from CommonClient import logger
+
+    handler: PokemonPlatinumClient = self.ctx.client_handler # type: ignore
+    assert isinstance(handler, PokemonPlatinumClient)
+    if state is None:
+        logger.info("Current death link state: " + ("on" if handler.death_link_state else "off"))
+    elif state.lower() == "on":
+        handler.death_link_state = True
+        logger.info("Death link state set to on")
+    elif state.lower() == "off":
+        handler.death_link_state = False
+        logger.info("Death link state set to off")
+
+def cmd_death_link_group(self: "BizHawkClientCommandProcessor", group: str | None = None) -> None:
+    """Change the death link group. Enter the comand without any arguments to print the current group. Use "" as the argument for the default group."""
+    from CommonClient import logger
+
+    handler: PokemonPlatinumClient = self.ctx.client_handler # type: ignore
+    assert isinstance(handler, PokemonPlatinumClient)
+    if group is None:
+        logger.info(f"Current death link group: \"{handler.death_link_group}\"")
+    else:
+        handler.death_link_group = group
+        logger.info(f"Set death link group to \"{group}\"")

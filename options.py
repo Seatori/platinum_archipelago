@@ -6,7 +6,7 @@
 from collections.abc import Mapping, MutableMapping, Sequence, Set
 from dataclasses import dataclass
 from typing import Any
-from Options import Choice, DeathLink, DefaultOnToggle, NamedRange, OptionDict, OptionError, OptionGroup, OptionSet, PerGameCommonOptions, Range, Toggle, Option
+from Options import Choice, DeathLink, DefaultOnToggle, NamedRange, OptionDict, OptionError, OptionGroup, OptionSet, PerGameCommonOptions, Range, Toggle, Option, FreeText
 
 from .data import special_encounters
 from .data.species import species, regional_mons, having_two_level_evos, legendary_mons
@@ -781,6 +781,7 @@ slot_data_options: Sequence[str] = [
     "trainer_party_blacklist",
 
     "death_link",
+    "death_link_group",
 
     "cheats_enabled",
 
@@ -799,11 +800,19 @@ slot_data_options: Sequence[str] = [
 class PokemonPlatinumDeathLink(DeathLink):
     __doc__ = DeathLink.__doc__ + "\n\n    In Pokémon Platinum, blacking out sends a death and receiving a death causes you to black out.\n" # type: ignore
 
+class DeathLinkGroup(FreeText):
+    """
+    The death link group to use. Death links are only sent within groups.
+    To interface with games which do not support groups, use the empty group "".
+    """
+    default = ""
+
 @dataclass
 class PokemonPlatinumOptions(PerGameCommonOptions):
     goal: Goal
 
     death_link: PokemonPlatinumDeathLink
+    death_link_group: DeathLinkGroup
     remote_items: RemoteItems
     cheats_enabled: CheatsEnabled
 
